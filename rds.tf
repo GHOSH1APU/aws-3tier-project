@@ -10,7 +10,7 @@ resource "aws_db_subnet_group" "main" {
 
 # 2. Provision the MySQL RDS Instance
 resource "aws_db_instance" "mysql" {
-  identifier             = "3-tier-mysql-db"
+  identifier             = "tier3-mysql-db"
   engine                 = "mysql"
   engine_version         = "8.0"
   instance_class         = "db.t3.micro"
