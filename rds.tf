@@ -1,10 +1,10 @@
 # 1. Create a DB Subnet Group
 resource "aws_db_subnet_group" "main" {
-  name       = "3-tier-db-subnet-group"
+  name       = "tier-3-db-subnet-group"
   subnet_ids = module.networking.private_db_subnets
 
   tags = {
-    Name = "3-tier-db-subnet-group"
+    Name = "tier-3-db-subnet-group"
   }
 }
 
