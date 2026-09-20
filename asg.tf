@@ -16,7 +16,10 @@ resource "aws_launch_template" "app_lt" {
   instance_type = "t2.micro"
 
   vpc_security_group_ids = [aws_security_group.app_sg.id]
-
+  # Attach the SSM Profile
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ssm_profile.name
+  }
   # Install a web server so the ALB target group health checks pass
   user_data = base64encode(<<-EOF
               #!/bin/bash
