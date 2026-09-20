@@ -1,4 +1,4 @@
-terraform {
+  terraform {
   backend "s3" {
     bucket       = "sourav-3tier-app-terraform-project"
     key          = "practice/terraform.tfstate"
@@ -15,4 +15,10 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
+  
+  default_tags {
+    tags = {
+      Owner = "Sourav Ghosh"
+    }
+  }
 } 
