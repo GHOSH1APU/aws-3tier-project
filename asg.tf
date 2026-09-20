@@ -18,7 +18,7 @@ resource "aws_launch_template" "app_lt" {
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
   # Install a web server so the ALB target group health checks pass
-  user_data = filebase64encode(<<-EOF
+  user_data = base64encode(<<-EOF
               #!/bin/bash
               yum update -y
               yum install -y httpd
