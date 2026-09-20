@@ -23,11 +23,59 @@ resource "aws_launch_template" "app_lt" {
   # Install a web server so the ALB target group health checks pass
   user_data = base64encode(<<-EOF
               #!/bin/bash
-              yum update -y
-              yum install -y httpd mariadb105
+              dnf update -y
+              dnf install -y httpd php php-mysqli mariadb105
+
+              # Create the dynamic PHP application
+              cat << 'PHP_EOF' > /var/www/html/index.php
+              <?php
+              $server_ip = $_SERVER['SERVER_ADDR'] ?? gethostbyname(gethostname());
+              $server_host = gethostname();
+
+              $servername = "${aws_db_instance.mysql.address}";
+              $username = "admin";
+              $password = "password1234";
+              $dbname = "appdatabase";
+
+              $conn = new mysqli($servername, $username, $password, $dbname);
+
+              if ($conn->connect_error) {
+                die("Connection failed: " . $conn->connect_error);
+              }
+
+              echo "<h1>Tier 2 App Server & Tier 3 Database</h1>";
+              echo "<p><strong>Served by Node IP:</strong> " . htmlspecialchars($server_ip) . "</p>";
+              echo "<p><strong>Node Hostname:</strong> " . htmlspecialchars($server_host) . "</p>";
+              echo "<hr>";
+
+              echo "<h3>Users Table Records</h3>";
+              echo "<table border='1' cellpadding='5' cellspacing='0'>";
+              echo "<tr><th>ID</th><th>Name</th><th>Email</th><th>Timestamp</th></tr>";
+
+              $sql = "SELECT id, name, email, created_at FROM users";
+              $result = $conn->query($sql);
+
+              if ($result && $result->num_rows > 0) {
+                while($row = $result->fetch_assoc()) {
+                  echo "<tr>";
+                  echo "<td>" . htmlspecialchars($row["id"]) . "</td>";
+                  echo "<td>" . htmlspecialchars($row["name"]) . "</td>";
+                  echo "<td>" . htmlspecialchars($row["email"]) . "</td>";
+                  echo "<td>" . htmlspecialchars($row["created_at"]) . "</td>";
+                  echo "</tr>";
+                }
+              } else {
+                echo "<tr><td colspan='4'>No users found</td></tr>";
+              }
+              echo "</table>";
+
+              $conn->close();
+              ?>
+              PHP_EOF
+
+              # Start and enable the Apache service
               systemctl start httpd
               systemctl enable httpd
-              echo "<h1>Hello from Tier 2 - Application Layer</h1>" > /var/www/html/index.html
               EOF
   )
 
