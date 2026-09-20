@@ -21,7 +21,7 @@ resource "aws_launch_template" "app_lt" {
   user_data = base64encode(<<-EOF
               #!/bin/bash
               yum update -y
-              yum install -y httpd
+              yum install -y httpd mariadb105
               systemctl start httpd
               systemctl enable httpd
               echo "<h1>Hello from Tier 2 - Application Layer</h1>" > /var/www/html/index.html
@@ -53,4 +53,26 @@ resource "aws_autoscaling_group" "app_asg" {
     value               = "3-tier-app-instance"
     propagate_at_launch = true
   }
+}
+# 5. IAM Role for SSM Session Manager Access
+resource "aws_iam_role" "ssm_role" {
+  name = "tier2-ssm-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ssm_profile" {
+  name = "tier2-ssm-profile"
+  role = aws_iam_role.ssm_role.name
 }
