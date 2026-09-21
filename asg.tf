@@ -105,6 +105,20 @@ resource "aws_autoscaling_group" "app_asg" {
     propagate_at_launch = true
   }
 }
+
+# 4. Dynamic Scaling Policy
+resource "aws_autoscaling_policy" "cpu_target_tracking" {
+  name                   = "cpu-target-tracking-policy"
+  autoscaling_group_name = aws_autoscaling_group.app_asg.name
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 70.0 
+  }
+}
 # 5. IAM Role for SSM Session Manager Access
 resource "aws_iam_role" "ssm_role" {
   name = "tier2-ssm-role"
