@@ -35,6 +35,10 @@ Security is enforced using strict Security Group chaining:
 
 The Terraform codebase utilizes a dedicated networking module alongside root-level resource definitions to provision the 3-tier environment:
 
+## 📂 Repository Structure
+
+The Terraform codebase utilizes a dedicated networking module for complex routing, while core compute, database, and security resources are defined at the root level for streamlined deployment:
+
 ```text
 ├── .github/
 │   └── workflows/
@@ -46,10 +50,13 @@ The Terraform codebase utilizes a dedicated networking module alongside root-lev
 │       ├── routetable.tf   # Route table definitions
 │       ├── rt-ngw-igw.tf   # Route table associations (IGW and NGW)
 │       └── vpccreation.tf  # Core VPC and subnet creation
-├── alb.tf                  # Application Load Balancer and target group configurations
-├── main.tf                 # Root configuration calling the VPC module and defining core parameters
-├── variables.tf            # Global variable declarations
-└── outputs.tf              # Final infrastructure outputs (e.g., ALB DNS endpoint)
+├── alb.tf                  # Application Load Balancer configuration
+├── asg.tf                  # Auto Scaling Group and Launch Template configuration
+├── aws_3_tier_architecture_documentation # Project architecture and documentation
+├── main.tf                 # Root configuration calling the VPC module 
+├── provider.tf             # AWS provider configuration and region setup
+├── rds.tf                  # Amazon RDS MySQL database configuration
+└── security_groups.tf      # Security group definitions restricting access between tiers
 ```
 
 ## 🚀 Deployment Instructions
