@@ -31,21 +31,25 @@ Security is enforced using strict Security Group chaining:
 
 ```text
 .
-├── .github/workflows/
-│   └── deploy.yml           # GitHub Actions CI/CD pipeline
+## 📂 Repository Structure
+
+The Terraform codebase utilizes a dedicated networking module alongside root-level resource definitions to provision the 3-tier environment:
+
+```text
+├── .github/
+│   └── workflows/
+│       └── deploy.yml      # GitHub Actions CI/CD pipeline definition
 ├── modules/
-│   └── vpc/
-│       ├── main.tf          # VPC, Subnets, IGW, NAT Gateways, Route Tables
-│       ├── variables.tf
-│       └── outputs.tf
-├── main.tf                  # Root module invoking the VPC module
-├── provider.tf              # AWS Provider and Remote Backend configuration
-├── security_groups.tf       # Security group definitions and chaining rules
-├── alb.tf                   # Application Load Balancer and Target Group
-├── asg.tf                   # Launch Template, Auto Scaling Group, and IAM Profile
-├── rds.tf                   # RDS MySQL instance and Subnet Group
-├── route53_acm.tf           # DNS configuration and ACM SSL certificate
-└── variables.tf             # Global variables
+│   └── vpc/                # Dedicated networking and routing module
+│       ├── ngw.tf          # NAT Gateway provisioning for private subnets
+│       ├── outputs.tf      # Network state outputs
+│       ├── routetable.tf   # Route table definitions
+│       ├── rt-ngw-igw.tf   # Route table associations (IGW and NGW)
+│       └── vpccreation.tf  # Core VPC and subnet creation
+├── alb.tf                  # Application Load Balancer and target group configurations
+├── main.tf                 # Root configuration calling the VPC module and defining core parameters
+├── variables.tf            # Global variable declarations
+└── outputs.tf              # Final infrastructure outputs (e.g., ALB DNS endpoint)
 ```
 
 ## 🚀 Deployment Instructions
